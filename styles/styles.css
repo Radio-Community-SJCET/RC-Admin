@@ -47,14 +47,7 @@ body {
     display: block;
     animation: spin 2s linear infinite;
   }
-  
-  .loader-text {
-    margin-top: 1rem;
-    font-size: 1.2rem;
-    color: #4a7c59;
-    font-weight: bold;
-    text-align: center;
-  }
+
   @keyframes spin {
     0% {
       transform: rotate(0deg);
