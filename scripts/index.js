@@ -49,6 +49,14 @@ const googleSignInButton = document.getElementById("google-signin");
 const logoutBtn = document.getElementById("logout-btn");
 const addEventForm = document.getElementById("add-event-form");
 const eventsList = document.getElementById("events-list");
+const responsesList = document.getElementById("responses-list");
+const responsesBtn = document.getElementById("responses-btn");
+const eventsBtn = document.getElementById("events-btn");
+const responsesContainer = document.getElementById("responses-container");
+const eventsContainer = document.getElementById("events-container");
+const mainOptions = document.getElementById("main-options");
+const responsesBackBtn = document.getElementById("responses-back-btn");
+const eventsBackBtn = document.getElementById("events-back-btn");
 
 googleSignInButton.addEventListener("click", function () {
   const provider = new GoogleAuthProvider();
@@ -164,6 +172,36 @@ window.deleteEvent = function (id) {
   }
 };
 
+function loadResponses() {
+  responsesList.innerHTML = '<p class="text-center">Loading responses...</p>';
+  const responsesQuery = query(
+    collection(db, "responses"),
+    orderBy("timestamp", "desc")
+  );
+  getDocs(responsesQuery)
+    .then((querySnapshot) => {
+      responsesList.innerHTML = "";
+      
+      querySnapshot.forEach((doc) => {
+        const response = doc.data();
+        const responseElement = document.createElement("div");
+        responseElement.className = "mb-4 p-4 bg-white rounded-lg shadow";
+        responseElement.innerHTML = `
+                <p><strong>Name:</strong> ${response.name}</p>
+                <p><strong>Email:</strong> ${response.email}</p>
+                <p><strong>Message:</strong> ${response.message}</p>
+                <p><strong>Timestamp:</strong> ${response.timestamp.toDate().toLocaleString()}</p>
+            `;
+        responsesList.appendChild(responseElement);
+      });
+    })
+    .catch((error) => {
+      console.error("Error loading responses:", error);
+      responsesList.innerHTML =
+        '<p class="text-center text-red-500">Error loading responses. Please try again.</p>';
+    });
+}
+
 function showLoginContainer() {
   loginContainer.style.display = "flex";
   dashboardContainer.style.display = "none";
@@ -172,12 +210,35 @@ function showLoginContainer() {
 function showDashboard() {
   loginContainer.style.display = "none";
   dashboardContainer.style.display = "block";
+  showMainOptions();
 }
+
+function showMainOptions() {
+  mainOptions.style.display = "grid";
+  responsesContainer.style.display = "none";
+  eventsContainer.style.display = "none";
+}
+
+responsesBtn.addEventListener("click", () => {
+  mainOptions.style.display = "none";
+  responsesContainer.style.display = "block";
+  eventsContainer.style.display = "none";
+  loadResponses();
+});
+
+eventsBtn.addEventListener("click", () => {
+  mainOptions.style.display = "none";
+  responsesContainer.style.display = "none";
+  eventsContainer.style.display = "block";
+  loadEvents();
+});
+
+responsesBackBtn.addEventListener("click", showMainOptions);
+eventsBackBtn.addEventListener("click", showMainOptions);
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     showDashboard();
-    loadEvents();
   } else {
     showLoginContainer();
   }
